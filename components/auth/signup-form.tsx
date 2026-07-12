@@ -70,17 +70,17 @@ export function SignupForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
-        <CardDescription>
+    <div className="w-full">
+      <div className="space-y-2 pb-8">
+        <h2 className="text-3xl font-bold tracking-tight font-heading">Create an account</h2>
+        <p className="text-base text-muted-foreground">
           Enter your information to register for AssetFlow
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <CardContent className="space-y-4">
+        </p>
+      </div>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
+            <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
             <Input
               id="name"
               placeholder="John Doe"
@@ -91,11 +91,11 @@ export function SignupForm() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
             <Input
               id="email"
               type="email"
-              placeholder="m@example.com"
+              placeholder="name@company.com"
               {...form.register("email")}
             />
             {form.formState.errors.email && (
@@ -103,10 +103,11 @@ export function SignupForm() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-sm font-medium">Password</Label>
             <Input
               id="password"
               type="password"
+              placeholder="••••••••"
               {...form.register("password")}
             />
             {form.formState.errors.password && (
@@ -114,20 +115,20 @@ export function SignupForm() {
             )}
           </div>
           {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        </div>
+        <div className="flex flex-col space-y-4 pt-2">
+          <Button type="submit" className="w-full text-base font-semibold shadow-md" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
             Sign Up
           </Button>
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-center text-sm text-muted-foreground mt-4">
             Already have an account?{" "}
-            <Link href="/login" className="underline underline-offset-4 hover:text-primary">
+            <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
               Log in
             </Link>
           </div>
-        </CardFooter>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 }

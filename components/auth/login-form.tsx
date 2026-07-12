@@ -51,21 +51,21 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold tracking-tight">Login to AssetFlow</CardTitle>
-        <CardDescription>
+    <div className="w-full">
+      <div className="space-y-2 pb-8">
+        <h2 className="text-3xl font-bold tracking-tight font-heading">Welcome back</h2>
+        <p className="text-base text-muted-foreground">
           Enter your email and password to access your account
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <CardContent className="space-y-4">
+        </p>
+      </div>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
             <Input
               id="email"
               type="email"
-              placeholder="m@example.com"
+              placeholder="name@company.com"
               {...form.register("email")}
             />
             {form.formState.errors.email && (
@@ -74,11 +74,13 @@ export function LoginForm() {
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+              <Link href="#" className="text-sm font-medium text-primary hover:underline underline-offset-4">Forgot password?</Link>
             </div>
             <Input
               id="password"
               type="password"
+              placeholder="••••••••"
               {...form.register("password")}
             />
             {form.formState.errors.password && (
@@ -86,20 +88,20 @@ export function LoginForm() {
             )}
           </div>
           {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        </div>
+        <div className="flex flex-col space-y-4 pt-2">
+          <Button type="submit" className="w-full text-base font-semibold shadow-md" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
             Sign In
           </Button>
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-center text-sm text-muted-foreground mt-4">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="underline underline-offset-4 hover:text-primary">
-              Sign up
+            <Link href="/signup" className="font-medium text-primary underline-offset-4 hover:underline">
+              Create an account
             </Link>
           </div>
-        </CardFooter>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 }
