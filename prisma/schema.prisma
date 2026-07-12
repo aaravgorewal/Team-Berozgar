@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  EMPLOYEE
+  DEPARTMENT_HEAD
+  ASSET_MANAGER
+  ADMIN
+}
+
+enum AssetStatus {
+  AVAILABLE
+  ALLOCATED
+  RESERVED
+  UNDER_MAINTENANCE
+  LOST
+  RETIRED
+  DISPOSED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MaintenanceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum AuditStatus {
+  OPEN
+  CLOSED
+}
+
+enum VerificationStatus {
+  VERIFIED
+  MISSING
+  DAMAGED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  password      String?
+  role          Role      @default(EMPLOYEE)
+  isActive      Boolean   @default(true)
+  departmentId  String?
+  department    Department? @relation(fields: [departmentId], references: [id])
+  
+  // Relations
+  assetsAllocated     Allocation[]
+  bookings            Booking[]
+  maintenanceRequests MaintenanceRequest[]
+  auditsAssigned      AuditCycle[] @relation("AuditAssignees")
+  transferRequestsSent TransferRequest[] @relation("TransferRequestedBy")
+  transferRequestsTarget TransferRequest[] @relation("TransferTargetUser")
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Department {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  isActive      Boolean   @default(true)
+  headId        String?   @unique
+  parentDeptId  String?
+  parent        Department?  @relation("DepartmentHierarchy", fields: [parentDeptId], references: [id])
+  children      Department[] @relation("DepartmentHierarchy")
+
+  // Relations
+  users         User[]
+  assetsAllocated Allocation[] @relation("DepartmentAllocations")
+  transferRequestsTarget TransferRequest[] @relation("TransferTargetDepartment")
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model AssetCategory {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  description   String?
+  
+  // Relations
+  assets        Asset[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Asset {
+  id            String    @id @default(cuid())
+  name          String
+  assetTag      String    @unique // e.g. AF-0001
+  serialNumber  String?
+  acquisitionDate DateTime?
+  acquisitionCost Float?
+  condition     String?
+  location      String?
+  photoUrl      String?
+  isSharedBookable Boolean @default(false)
+  status        AssetStatus @default(AVAILABLE)
+  
+  categoryId    String
+  category      AssetCategory @relation(fields: [categoryId], references: [id])
+  
+  // Relations
+  allocations   Allocation[]
+  bookings      Booking[]
+  maintenanceHistory MaintenanceRequest[]
+  auditRecords  AuditRecord[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Allocation {
+  id            String    @id @default(cuid())
+  assetId       String
+  asset         Asset     @relation(fields: [assetId], references: [id])
+  
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id])
+  
+  departmentId  String?
+  department    Department? @relation("DepartmentAllocations", fields: [departmentId], references: [id])
+  
+  expectedReturnDate DateTime?
+  returnDate    DateTime?
+  status        String    @default("ACTIVE") // ACTIVE, RETURNED, TRANSFERRED
+  
+  transferRequests TransferRequest[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model TransferRequest {
+  id            String    @id @default(cuid())
+  allocationId  String
+  allocation    Allocation @relation(fields: [allocationId], references: [id])
+  
+  requestedById String
+  requestedBy   User      @relation("TransferRequestedBy", fields: [requestedById], references: [id])
+  
+  targetUserId  String?
+  targetUser    User?     @relation("TransferTargetUser", fields: [targetUserId], references: [id])
+  
+  targetDepartmentId String?
+  targetDepartment Department? @relation("TransferTargetDepartment", fields: [targetDepartmentId], references: [id])
+  
+  status        RequestStatus @default(PENDING)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Booking {
+  id            String    @id @default(cuid())
+  assetId       String
+  asset         Asset     @relation(fields: [assetId], references: [id])
+  
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  
+  startTime     DateTime
+  endTime       DateTime
+  status        String    @default("UPCOMING") // UPCOMING, ONGOING, COMPLETED, CANCELLED
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model MaintenanceRequest {
+  id            String    @id @default(cuid())
+  assetId       String
+  asset         Asset     @relation(fields: [assetId], references: [id])
+  
+  requestedById String
+  requestedBy   User      @relation(fields: [requestedById], references: [id])
+  
+  issue         String
+  priority      String    // LOW, MEDIUM, HIGH
+  photoUrl      String?
+  status        MaintenanceStatus @default(PENDING)
+  technicianName String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model AuditCycle {
+  id            String    @id @default(cuid())
+  name          String
+  scope         String    // Department or Location scope
+  startDate     DateTime
+  endDate       DateTime
+  status        AuditStatus @default(OPEN)
+  
+  auditors      User[]    @relation("AuditAssignees")
+  records       AuditRecord[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model AuditRecord {
+  id            String    @id @default(cuid())
+  auditCycleId  String
+  auditCycle    AuditCycle @relation(fields: [auditCycleId], references: [id])
+  
+  assetId       String
+  asset         Asset     @relation(fields: [assetId], references: [id])
+  
+  status        VerificationStatus
+  notes         String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
