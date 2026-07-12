@@ -118,7 +118,7 @@ export function CreateAllocationDialog({ assets, users, departments }: { assets:
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="assetId">Asset</Label>
-            <Select onValueChange={(val) => form.setValue("assetId", val)}>
+            <Select value={form.watch("assetId")} onValueChange={(val) => form.setValue("assetId", val)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Asset" />
               </SelectTrigger>
@@ -136,9 +136,9 @@ export function CreateAllocationDialog({ assets, users, departments }: { assets:
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="assigneeType">Assign To</Label>
-              <Select onValueChange={(val: any) => form.setValue("assigneeType", val)} defaultValue="user">
+              <Select value={form.watch("assigneeType")} onValueChange={(val: any) => form.setValue("assigneeType", val)}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select Type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="user">Employee</SelectItem>
@@ -148,7 +148,7 @@ export function CreateAllocationDialog({ assets, users, departments }: { assets:
             </div>
             <div className="space-y-2">
               <Label htmlFor="assigneeId">Select {assigneeType === "user" ? "Employee" : "Department"}</Label>
-              <Select onValueChange={(val) => form.setValue("assigneeId", val)}>
+              <Select value={form.watch("assigneeId")} onValueChange={(val) => form.setValue("assigneeId", val)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
