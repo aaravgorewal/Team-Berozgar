@@ -85,6 +85,7 @@ export function AuditList({ initialData }: { initialData: any[] }) {
                       <TableCell>
                         {cycle.status === "OPEN" ? (
                           <Select 
+                            key={record.status}
                             defaultValue={record.status}
                             onValueChange={(val) => handleRecordUpdate(record.id, val)}
                           >
@@ -92,6 +93,7 @@ export function AuditList({ initialData }: { initialData: any[] }) {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
+                              <SelectItem value="PENDING">Pending</SelectItem>
                               <SelectItem value="VERIFIED">Verified</SelectItem>
                               <SelectItem value="MISSING">Missing</SelectItem>
                               <SelectItem value="DAMAGED">Damaged</SelectItem>

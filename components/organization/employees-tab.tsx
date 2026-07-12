@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, UserCog } from "lucide-react";
 import { updateEmployeeRole } from "@/app/actions/organization";
 
+import { CreateEmployeeDialog } from "./create-employee-dialog";
+
 export function EmployeesTab({ initialData, departments }: { initialData: any[], departments: any[] }) {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [role, setRole] = useState<string>("");
@@ -42,9 +44,12 @@ export function EmployeesTab({ initialData, departments }: { initialData: any[],
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Employee Directory</CardTitle>
-        <CardDescription>View all registered employees and promote them to managerial roles.</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Employee Directory</CardTitle>
+          <CardDescription>View all registered employees and promote them to managerial roles.</CardDescription>
+        </div>
+        <CreateEmployeeDialog departments={departments} />
       </CardHeader>
       <CardContent>
         <Table>

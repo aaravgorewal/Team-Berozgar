@@ -44,6 +44,21 @@ export function CreateAssetDialog({ categories }: { categories: any[] }) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
+      let photoUrl = undefined;
+      const fileInput = document.getElementById("photo") as HTMLInputElement;
+      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          photoUrl = uploadData.secure_url;
+        }
+      }
+
       await createAsset({
         name: values.name,
         assetTag: values.assetTag,
@@ -53,9 +68,11 @@ export function CreateAssetDialog({ categories }: { categories: any[] }) {
         location: values.location,
         isSharedBookable: values.isSharedBookable === "true",
         acquisitionCost: values.acquisitionCost ? parseFloat(values.acquisitionCost) : undefined,
+        photoUrl,
       });
       setIsOpen(false);
       form.reset();
+      if (fileInput) fileInput.value = "";
     } catch (error) {
       console.error(error);
     } finally {
@@ -71,13 +88,17 @@ export function CreateAssetDialog({ categories }: { categories: any[] }) {
           Register Asset
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Register New Asset</DialogTitle>
           <DialogDescription>Add a new physical asset or shared resource to the system.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="photo">Asset Photo (Optional)</Label>
+            <Input id="photo" type="file" accept="image/*" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Asset Name</Label>
               <Input id="name" placeholder="MacBook Pro 16" {...form.register("name")} />
@@ -94,7 +115,7 @@ export function CreateAssetDialog({ categories }: { categories: any[] }) {
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="categoryId">Category</Label>
               <Select onValueChange={(val) => form.setValue("categoryId", val)}>
@@ -117,7 +138,7 @@ export function CreateAssetDialog({ categories }: { categories: any[] }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="condition">Condition</Label>
               <Select onValueChange={(val) => form.setValue("condition", val)} defaultValue="New">
@@ -138,7 +159,7 @@ export function CreateAssetDialog({ categories }: { categories: any[] }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="isSharedBookable">Is Shared/Bookable Resource?</Label>
               <Select onValueChange={(val) => form.setValue("isSharedBookable", val)} defaultValue="false">
@@ -158,7 +179,7 @@ export function CreateAssetDialog({ categories }: { categories: any[] }) {
           </div>
 
           <DialogFooter>
-            <Button type="submit" disabled={isLoading} className="mt-4">
+            <Button type="submit" disabled={isLoading} className="mt-4 w-full sm:w-auto">
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Register Asset
             </Button>

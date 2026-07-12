@@ -93,7 +93,7 @@ export function CreateBookingDialog({ bookableAssets }: { bookableAssets: any[] 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="assetId">Shared Resource</Label>
-            <Select onValueChange={(val) => form.setValue("assetId", val)}>
+            <Select value={form.watch("assetId")} onValueChange={(val) => form.setValue("assetId", val)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Resource" />
               </SelectTrigger>
