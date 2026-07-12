@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Eye, Settings2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { AssetViewDialog } from "./asset-view-dialog";
 
 export function AssetList({ initialData }: { initialData: any[] }) {
   const [search, setSearch] = useState("");
+  const [selectedAsset, setSelectedAsset] = useState<any>(null);
 
   const filteredAssets = initialData.filter(asset => 
     asset.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -81,7 +83,7 @@ export function AssetList({ initialData }: { initialData: any[] }) {
                         : "—"}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedAsset(asset)}>
                         <Eye className="h-4 w-4 mr-2" />
                         View
                       </Button>
@@ -93,6 +95,12 @@ export function AssetList({ initialData }: { initialData: any[] }) {
           </Table>
         </CardContent>
       </Card>
+      
+      <AssetViewDialog 
+        asset={selectedAsset} 
+        open={!!selectedAsset} 
+        onOpenChange={(open) => !open && setSelectedAsset(null)} 
+      />
     </div>
   );
 }
