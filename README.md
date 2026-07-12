@@ -26,47 +26,44 @@ A modern, full-stack, Odoo-inspired Asset and Facility Management application bu
 - **Authentication:** [NextAuth.js v5](https://authjs.dev/)
 - **Icons:** [Lucide React](https://lucide.dev/)
 
-##  Dashboard Workflows & Application Flow
+## Dashboard Features and System Architecture
 
-The system is designed to mimic a real-world enterprise workflow. To properly test or use the application, it is recommended to follow this sequence of operations:
+The application is architected around six core modules, designed to operate sequentially or independently depending on the organizational requirements. Below is a detailed technical overview of each module within the dashboard.
 
-### Step 1: Organizational Setup (Organization Page)
-Before creating assets, you need an organizational structure.
-1. **Departments:** Go to the Organization page and create departments (e.g., "Engineering", "HR"). Departments can have hierarchical relationships (e.g., "Frontend" is a child of "Engineering").
-2. **Employees:** Once departments exist, create Employee (User) profiles and assign them to specific departments. This establishes who can be assigned assets.
-3. **Categories:** Create Asset Categories (e.g., "Electronics", "Vehicles") to enforce classification rules.
+### 1. Organization Management
+The foundation of the asset management system relies on establishing an organizational hierarchy.
+- **Departments**: Hierarchical units representing teams or divisions. Departments can be nested (parent-child relationships).
+- **Categories**: Enforces data integrity by classifying assets into strict types (e.g., Electronics, Vehicles, Furniture). Categories serve as the primary grouping mechanism for analytics.
+- **Employees**: User profiles that are bound to specific departments. Assets and maintenance requests are directly tied to these employee records.
 
-### Step 2: Asset Procurement (Assets Page)
-Now that your organization exists, you can register physical inventory.
-1. Navigate to the **Assets** page and click "Add Asset".
-2. You will be prompted to enter a Name, Serial Number, Cost, and assign it to one of the Categories you created in Step 1.
-3. Upon creation, the asset will default to the `AVAILABLE` status.
+### 2. Asset Inventory (Procurement and Tracking)
+The centralized registry for all physical hardware and resources.
+- **Asset Creation**: When new hardware is procured, it is registered into the system. Required fields include the Asset Name, unique Asset Tag, Serial Number, Cost, and Category.
+- **Lifecycle Status**: Newly created assets are automatically assigned the `AVAILABLE` status. The system utilizes Prisma Enums (`AssetStatus`) to strictly control state transitions (e.g., `AVAILABLE`, `IN_USE`, `MAINTENANCE`, `RETIRED`).
+- **Data Integrity**: Duplicate serial numbers or asset tags are prevented at the database level.
 
-### Step 3: Asset Assignment (Allocations Page)
-Assets don't just sit in a warehouse; they are given to employees.
-1. Navigate to the **Allocations** page.
-2. Select an `AVAILABLE` asset from Step 2, and assign it to an Employee from Step 1.
-3. The asset's status automatically shifts to `IN_USE`.
-4. If an employee leaves the company, you can "Return" the asset, logging the return date and resetting its status back to `AVAILABLE`.
+### 3. Asset Allocation (Assignments and History)
+Manages the distribution of hardware to the workforce.
+- **Assignment**: Assets with the `AVAILABLE` status can be allocated to specific employees. Upon successful allocation, a record is generated in the `AssetAllocation` table, and the asset's state transitions to `IN_USE`.
+- **Return Processing**: When an employee no longer requires the hardware, the allocation can be terminated. The asset is transitioned back to `AVAILABLE`, and a historical timestamp (`returnDate`) is recorded. This ensures a complete chain of custody for high-value items.
 
-### Step 4: Ticketing & Repairs (Maintenance Page)
-When an `IN_USE` asset breaks down, users can log a ticket.
-1. Navigate to the **Maintenance** page and click "Raise Request".
-2. Select the broken asset and describe the issue (e.g., "Screen flickering").
-3. The asset status immediately flips to `MAINTENANCE`, preventing it from being assigned to anyone else.
-4. An Admin or IT technician can review the ticket and mark it as `RESOLVED`, putting the asset back into circulation.
+### 4. Maintenance and Ticketing
+Handles the repair and service lifecycles of damaged or degraded assets.
+- **Issue Reporting**: Employees or managers can submit maintenance requests against specific assets, detailing the issue and assigning a priority (`LOW`, `MEDIUM`, `HIGH`).
+- **State Locking**: Creating a maintenance request instantly flips the asset's status to `MAINTENANCE`. This acts as a database-level lock, preventing the asset from being allocated to another user while it is broken.
+- **Resolution**: IT technicians or administrators can resolve the ticket. Resolving a ticket unlocks the asset, reverting its status to `AVAILABLE` for future allocation.
 
-### Step 5: Physical Verification (Audit Page)
-Once a quarter, companies must physically verify their inventory.
-1. Navigate to the **Audit** page and click "New Audit Cycle".
-2. The system takes a "snapshot" of all current assets and creates a checklist.
-3. An assigned Auditor walks the floor and updates each asset's dropdown status: `VERIFIED`, `MISSING`, or `DAMAGED`.
-4. Once the cycle is "Locked/Closed", the results become a permanent historical record.
+### 5. Physical Auditing (Inventory Verification)
+Facilitates periodic physical inventory checks (e.g., end-of-year audits).
+- **Cycle Initialization**: Creating a new Audit Cycle takes a point-in-time snapshot of the entire asset inventory, generating a pending `AuditRecord` for every active asset.
+- **Verification Workflow**: Designated auditors physically locate the hardware and update the corresponding record status (`VERIFIED`, `MISSING`, `DAMAGED`).
+- **Data Preservation**: Once an audit cycle is closed, it is locked. The records become read-only, serving as immutable historical compliance data.
 
-### Step 6: Real-Time Analytics (Dashboard Home & Reports)
-As you execute Steps 1-5, all data is aggregated in real-time.
-- The **Dashboard** provides at-a-glance KPIs (Total Assets, Assets in Maintenance, Recent Activity Feed).
-- The **Reports** page uses Recharts to visually break down asset distribution by category and maintenance frequency, allowing management to see where money is being spent.
+### 6. Analytics and Reporting
+Aggregates operational data into actionable visualizations using Recharts.
+- **Key Performance Indicators**: The primary dashboard surfaces real-time metrics including total asset count, maintenance volume, and active allocations.
+- **Activity Feed**: A chronologically ordered log of recent system events (allocations, ticket creations, audit closures).
+- **Categorical Breakdown**: Visual reports aggregate asset value and maintenance frequency by category, identifying cost centers and high-failure hardware types.
 
 ##  Getting Started
 
