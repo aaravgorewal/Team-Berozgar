@@ -117,7 +117,7 @@ To view your data directly via a web UI without needing pgAdmin, run Prisma Stud
 npx prisma studio
 ```
 This will open `http://localhost:5555` where you can manually inspect, edit, or delete any record in the database.
-
+n
 ##  Known Quirks
 - **Hydration Warnings:** If you use Chrome extensions like ColorZilla or Grammarly, Next.js may log a hydration warning (`cz-shortcut-listen`). This is suppressed in `app/layout.tsx` but may still appear in strict dev mode.
 - **Database Sleep (Neon Free Tier):** If you are using Neon's free tier, the database sleeps after 5 minutes of inactivity. When you wake it up, you might see a "Waking up Database..." screen. This is normal and handled safely by `error.tsx`. Just click "Retry Connection". Local databases do not have this issue.
